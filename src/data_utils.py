@@ -2,9 +2,6 @@ import numpy as np
 import pandas as pd
 import re
 from tqdm import tqdm
-from sklearn.model_selection import train_test_split
-from datasets import load_dataset
-import kagglehub
 import torch
 from transformers import AutoTokenizer
 
@@ -79,14 +76,22 @@ def tokenize(text, name_tokenizer='bert-base-uncased'):
     return text_tokenized
 
 class LSTMDataset(torch.utils.data.Dataset):
-    def __init__(self, texts, tokenizer, seq_len=10, dir='data', part='train'):
+    def __init__(self, texts, tokenizer, seq_len=10):
         self.samples = []
         for line in texts:
             token_ids = tokenizer.encode(line, add_special_tokens=False, max_length=512, truncation=True)
+            # if len(token_ids) < seq_len:
+            #     continue
             for i in range(1, len(token_ids) - 1):
                 context = token_ids[max(0, i - seq_len): i] 
+            #     if len(context) < seq_len:
+            #         continue
                 target = token_ids[i]
                 self.samples.append((context, target))
+            """l_tokens = len(token_ids)
+            context = token_ids[:-1]
+            target = token_ids[int(0.75*l_tokens):]
+            self.samples.append((context, target))"""
 
     # возвращаем размер датасета (кол-во текстов)
     def __len__(self):
@@ -94,5 +99,8 @@ class LSTMDataset(torch.utils.data.Dataset):
         
     def __getitem__(self, idx):
         x, y = self.samples[idx]
-        return torch.tensor(x), torch.tensor(y)
+        return {
+            'input': torch.tensor(x, dtype=torch.long), 
+            'target': torch.tensor(y, dtype=torch.long)
+        }
     

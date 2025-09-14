@@ -14,6 +14,6 @@ class MyLSTM(nn.Module):
     def forward(self, x):
         emb = self.embedding(x)
         out, _ = self.rnn(emb)
-        linear_out = self.fc(out)
+        linear_out = self.fc(out[:,-1,:])
         return linear_out
     

@@ -12,8 +12,8 @@ def eval(model,
     model.eval()
     predictions, references = [], []
     with torch.no_grad():
-        for x_batch, y_batch in test_loader:
-            x_batch, y_batch = x_batch.to(device), y_batch.to(device)
+        for batch in test_loader:
+            x_batch, y_batch = batch['input'].to(device), batch['target'].to(device)
             logits = model(x_batch)
             preds = torch.argmax(logits, dim=1)
             for i in range(len(y_batch)):

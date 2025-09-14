@@ -34,8 +34,8 @@ def run_pretrained(
     else:
         predictions, references = [], []
         with torch.no_grad():
-            for x_batch, y_batch in prompt:
-                x_batch, y_batch = x_batch.to(device), y_batch.to(device)
+            for batch in prompt:
+                x_batch, y_batch = batch['input'].to(device), batch['target'].to(device)
                 for i in range(len(y_batch)):
                     input_tokens = tokenizer.convert_ids_to_tokens(x_batch[i].tolist())
                     true_tok = tokenizer.convert_ids_to_tokens([y_batch[i].item()])[0]
